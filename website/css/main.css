@@ -1,0 +1,32 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+html {
+  font-family: Montserrat, Helvetica, serif;
+  font-size: 14px;
+  line-height: 10px;
+}
+
+h1:hover {
+	color: OliveDrab ;
+}
+
+body {
+	text-align: left;
+}
+
+a {
+  color: DarkSeaGreen;
+}
+
+a:hover {
+  color: DarkSlateGrey ;
+}
+
+#main {
+    margin-left: 200px;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Fjalla+One);
+h1 {
+    font-family: Fjalla One, Helvetica, serif;
+    margin-left: 100px;
+}

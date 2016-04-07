@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.states {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+
+</style>
+<body>
+<h1><center>Percent Without Health Coverage, by county</center></h1>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/queue.v1.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+
+<div align=center><script>
+var width = 960,
+    height = 500;
+
+
+var color = d3.scale.threshold()
+    .domain([0.05, 0.1, 0.2, 0.3, 0.4])
+    .range(["#edf8fb", "#b2e2e2", "#66c2a4", "#2ca25f", "#006d2c"]);
+
+// var color = d3.scale.linear()
+//     .domain([0, .7])
+//     .range(["#edf8fb", "#006d2c"]);
+
+var path = d3.geo.path();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+queue()
+    .defer(d3.json, "us.json")
+    .defer(d3.csv, "health_care_2014.csv")
+    .await(ready);
+
+function ready(error, us, health_care_2014) {
+  if (error) throw error;
+
+  var rateById = {};
+
+  health_care_2014.forEach(function(d) { rateById[d.id] = +d.perc_no_hc; });
+
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+      .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("d", path)
+      .style("fill", function(d) { return color(rateById[d.id]); });
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a.id !== b.id; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+</script></div>
+
+
+<div class='my-legend'>
+<div class='legend-title'>Percentage of Population Without Healthcare</div>
+<div class='legend-scale'>
+  <ul class='legend-labels'>
+    <li><span style='background:#edf8fb;'></span>0 - 5%</li>
+    <li><span style='background:#b2e2e2;'></span>5.1 - 10%</li>
+    <li><span style='background:#66c2a4;'></span>10.1 - 20%</li>
+    <li><span style='background:#2ca25f;'></span>20.1 - 30%</li>
+    <li><span style='background:#006d2c;'></span>30.1 - 40+% </li>
+  </ul>
+</div>
+<div class='legend-source'>Source: <a href="https://www.census.gov/programs-surveys/acs/">American Community Survey, 2014 Five-Year Estimates</a></div>
+</div>
+
+<style type='text/css'>
+  .my-legend .legend-title {
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 90%;
+    }
+  .my-legend .legend-scale ul {
+    margin: 0;
+    padding: 0;
+    float: left;
+    list-style: none;
+    }
+  .my-legend .legend-scale ul li {
+    display: block;
+    float: left;
+    width: 50px;
+    margin-bottom: 6px;
+    text-align: center;
+    font-size: 80%;
+    list-style: none;
+    }
+  .my-legend ul.legend-labels li span {
+    display: block;
+    float: left;
+    height: 15px;
+    width: 50px;
+    }
+  .my-legend .legend-source {
+    font-size: 70%;
+    color: #999;
+    clear: both;
+    }
+  .my-legend a {
+    color: #777;
+    }
+</style>
