@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>HEALTHCARE in MA</title>
+  <!-- You will load the D3 library here. -->
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+   <style type="text/css">
+  svg {
+    font: 10px sans-serif;
+    shape-rendering: crispEdges;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+  }
+ 
+  path.domain {
+    stroke: none;
+  }
+ 
+  .y .tick line {
+    stroke: #ddd;
+  }
+  </style>
+</head>
+<body>
+  <h1>
+    <center>Healthcare Coverage by County in MA, 2014</center>
+  </h1>
+  <h2>
+    <center>Percentage of Population with or without Healthcare Coverage</center>
+  </h2>
+  <h3>
+    <center><a href="https://www.census.gov/programs-surveys/acs/">American Community Survey, 2009-2014 Estimates</a></center>
+  </h3>
+
+  <script>
+  // Our D3 code will go here.
+
+// New dataset read from CSV
+var HealthcareData = [];
+
+d3.csv("health_care_MA.csv", function(d) {
+  return {
+    county : d.name, // county name
+    perc_no_hc : +d.perc_no_hc, // percent with no healthcare adding the (+) forces value to be number 
+    perc_hc: +d.perc_hc
+  };
+}, function(error, rows) { // catch error if error, read rows
+  data = rows; // set data equal to rows
+  console.log(data);
+  createVisualization(); // call function to create chart
+});
+
+// Write the createVisualization function
+// This will contain the script that creates the chart
+
+function createVisualization(){
+
+  // Width and height of SVG
+  // var margin = {bottom:75, left: 15, right:85}
+  // var w = 200 - margin.left - margin.right
+  // var h = 175 - margin.bottom;
+
+  var margin = {top: 20, right: 160, bottom: 300, left: 30};
+  var w = 960 - margin.left - margin.right
+  var h = 800 - margin.top - margin.bottom;
+
+  // Get length of dataset
+  var arrayLength = data.length; // length of dataset
+  // var maxValue = d3.max(ratData, function(d) { return +d.rats;} ); // get max value of our dataset
+  var x_axisLength = 100; // length of x-axis in our layout
+  var y_axisLength = 100; // length of y-axis in our layout
+
+  //Create SVG element
+  var svg = d3.select("body")
+    .append("svg")
+    .attr("width", w + margin.left + margin.right)
+    .attr("height", h + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + ",10)");
+
+  //Transpose the data into layers
+  var dataset = d3.layout.stack() (["perc_no_hc",
+    "perc_hc"].map(function(HealthcareData) {
+      return data.map(function(d) {
+        return {
+          x: d.county,
+          y: +d[HealthcareData]
+        };
+      });
+    }));
+
+
+var x = d3.scale.ordinal()
+  .domain(dataset[0].map(function(d) { return d.x; }))
+  .rangeRoundBands([10, w-10], 0.02);
+
+var y = d3.scale.linear()
+  .domain([0, d3.max(dataset, function(d) {  return d3.max(d, function(d) { return d.y0 + d.y; });  })])
+  .range([h, 0]);
+
+  // var yScale = d3.scale.linear() // takes the data and scales it to our viz
+  //   .domain([0, d3.max(dataset, function(d) {
+  //     return d3.max(d, function(d) {
+
+  //     });
+  //   })])
+  //   .range([h, 0]);
+
+ var colors = ["#bb0000", "#32506d"];
+
+  // Create groups for each series, rect elements for each segment
+   var groups = svg.selectAll("g.name")
+    .data(dataset)
+    .enter().append("g")
+    .attr("class", "name")
+    .style("fill", function(d, i) { return colors[i]; });
+
+  var rect = groups.selectAll("rect")
+    .data(function(d) { return d; })
+    .enter()
+    .append("rect")
+    .attr("x", function(d) { return x(d.x); })
+    .attr("y", function(d) { return y(d.y0 + d.y); })
+    .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+    .attr("width", x.rangeBand())
+    .on("mouseover", function() { tooltip.style("display", null); })
+    .on("mouseout", function() { tooltip.style("display", "none"); })
+    .on("mousemove", function(d) {
+      var xPosition = d3.mouse(this)[0] - 15;
+      var yPosition = d3.mouse(this)[1] - 25;
+      tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+      tooltip.select("text").text((d.y*100).toFixed(2) + "%");
+    });
+
+    var tooltip = svg.append("g")
+      .attr("class", "tooltip")
+      .style("display", "none");
+      
+  tooltip.append("text")
+    .attr("x", 15)
+    .attr("dy", "1.2em")
+    .style("text-anchor", "middle")
+    .attr("font-size", "12px");
+
+
+// Draw legend
+var legend = svg.selectAll(".legend")
+  .data(colors)
+  .enter().append("g")
+  .attr("class", "legend")
+  .attr("transform", function(d, i) { return "translate(30," + i * 19 + ")"; });
+ 
+legend.append("rect")
+  .attr("x", w - 18)
+  .attr("width", 18)
+  .attr("height", 18)
+  .style("fill", function(d, i) {return colors.slice().reverse()[i];});
+ 
+legend.append("text")
+  .attr("x", w + 5)
+  .attr("y", 9)
+  .attr("dy", ".35em")
+  .style("text-anchor", "start")
+  .text(function(d, i) { 
+    switch (i) {
+      case 0: return "% With Healthcare";
+      case 1: return "% Without Healthcare";
+    }
+  });
+
+// Define and draw axes
+  var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(5)
+    .tickSize(-w)
+    .tickFormat( function(d) { return d*100 } );
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+      .tickFormat( function(d) { return d} );
+
+  svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+  // svg.append("g")
+  //   .attr("class", "x axis")
+  //   .attr("transform", "translate(0," + h + ")")
+  //   .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + h + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .attr("y", 0)
+      .attr("x", 9)
+      .attr("dy", ".35em")
+      .attr("transform", "rotate(90)")
+      .style("text-anchor", "start");
+
+
+}; // end of create visualizationfunction
+
+
+</script>
+</script>
+<style>
+  text {
+    font-family: "Open Sans", sans-serif;
+    font-size: 12px;
+  }
+</style>
+
+</body>
+</html>
