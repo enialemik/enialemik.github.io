@@ -1,0 +1,157 @@
+
+<html>
+<head>
+    <title>Riyadh</title>
+    <h1>Origin Hotspots</h1>
+    <h2></h2>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="data/roads.geojson"></script>
+    <script src="data/districts.geojson"></script>
+<!--     // <script src="data/route_PNO_12pm.geojson"></script> -->
+    <script src="data/merged_PNO_routes.geojson"></script>
+    <script src="data/hotspots_total.json"></script>
+    <style> 
+        body {
+            position: absolute;
+            font-family: "Proxima Nova", "Montserrat", sans-serif;
+/*            background-color: #636363;*/
+            background-color: #000000;
+        }
+        h1, h2 {
+            position: absolute;
+            left: 20px;
+            font-size: 1.3em;
+            font-weight: 100;
+            color: #ffffff;
+        }
+        h2 {
+            top: 30px;
+            font-size: 1em;
+        }
+        .hotspot {
+            stroke: #ffffff;
+            fill: #ffb72d;
+            opacity: .7;
+        }
+        .hotspothover {
+            fill: #ffe28a; 
+        }
+
+        #sliderContainer {
+            text-align: center;
+            position: relative;
+            top: 700px;
+            color: #ffffff;
+        }
+        .flow {
+            fill: #white;  
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <div id="sliderContainer">
+    <input id="timeslide" type="range" min="0" max="2" value="0" step="1"/><br>
+    <span id="range">9.0</span>
+    </div>
+
+    <script>
+    var inputValue = null;
+    var time = ["9.0","12.0","18.0"];
+
+    var width = 750;
+    var height = 750;
+
+    var svg = d3.select( "body" )
+        .append( "svg" )
+        .attr( "width", width )
+        .attr( "height", height );
+
+    var g = svg.append( "g" );
+
+    // Set Projection Parameters
+    // Mercator
+    var projection = d3.geo.mercator()
+        .scale( 35000 )
+        // .rotate( [71.057,0] )
+        .center( [46.765, 24.713] )
+        .translate( [width/2,height/2] );
+
+    var geoPath = d3.geo.path()
+        .projection( projection );
+
+
+     var road_network = svg.append( "g" );
+
+        road_network.selectAll( "path" )
+        .data( roads.features )
+        .enter()
+        .append( "path" )
+        .attr("fill", "none")
+        .attr( "stroke", "#c9c9c9" )
+        .attr("stroke-width", .5)
+        .attr( "d", geoPath )
+        .attr("class", "roads");
+
+
+ var hotspots_total = svg.append( "g" );
+
+    hotspots_total.selectAll( "circle" )
+        .data( hotspots.features )
+        .enter()
+        .append("circle")
+        // .attr("display", initialTime)
+        .attr( "stroke", "#ffe28a" )
+        .attr("transform", function(d) {return "translate(" + projection([d.properties.long_dest,d.properties.lat_dest]) + ")";})
+        .attr("r", function(d){return d.properties.flow*2;})
+        .attr("class", "hotspot")
+        .on("mouseover", function(d){
+            d3.select("h2").text(d.properties.flow);
+            d3.select(this).attr("class","hotspothover");
+        })
+        .on("mouseout", function(d){
+            d3.select("h2").text("");
+            d3.select(this).attr("class","hotspot");
+        });
+
+    // when the input range changes update the value 
+    d3.select("#timeslide").on("input", function() {
+        update(+this.value);
+    });
+
+    // TIMESLIDER
+        function update(value) {
+            document.getElementById("range").innerHTML=time[value];
+            inputValue = time[value];
+            d3.selectAll(".hotspot")
+                .attr("display", timeMatch);
+        }
+        function timeMatch(data, value) {
+            var d = data.properties.hour;
+            var m = "9";
+            if (inputValue == d) {
+                this.parentElement.appendChild(this);
+                return "display";
+            } else {
+                return "none";
+
+    //     function initialTime(d,i){
+    //         var d = "9.0"
+    //         if (d == "9.0") {
+    //             this.parentElement.appendChild(this);
+    //                 return "display";
+    //             } else {
+    //                 return "none";
+    //     };
+    // }
+
+        };
+    }
+    </script>
+
+
+
+</body>
+</html>
