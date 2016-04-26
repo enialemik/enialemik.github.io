@@ -117,17 +117,17 @@
             d3.select(this).attr("class","hotspot");
         });
 
-    // d3.select("#start").on("click", function() {
-    //     PNOhotspots_total
-    //             .transition()
-    //             .attr("r", function(d){return d.properties.flow*3;});
-    //     });
+    d3.select("#start").on("click", function() {
+        PNOhotspots_total
+                .transition()
+                .attr("r", function(d){return d.properties.flow*3;});
+        });
 
-    // d3.select("#reset").on("click", function() {
-    //     PNOhotspots_total
-    //             .transition()
-    //             .attr("r", 1);
-    //     });
+    d3.select("#reset").on("click", function() {
+        PNOhotspots_total
+                .transition()
+                .attr("r", 1);
+        });
 
     // when the input range changes update the value 
     d3.select("#timeslide").on("input", function() {
