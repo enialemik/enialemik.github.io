@@ -2,34 +2,18 @@
 <html>
 <head>
     <title>Riyadh</title>
-<<<<<<< HEAD
-    <h2></h2>
-   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="data/PNOhotspot_0607.geojson"></script>
-    <style type="text/css"></style>
-=======
-    <h1>Origin Hotspots</h1>
+    <h1>PNU As the Origin</h1>
     <h2></h2>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="data/roads.geojson"></script>
     <script src="data/districts.geojson"></script>
 <!--     // <script src="data/route_PNO_12pm.geojson"></script> -->
     <script src="data/merged_PNO_routes.geojson"></script>
-    <script src="data/hotspots_total.json"></script>
->>>>>>> fb8d537c9bae7311b1c009b713a6fa0667a27b3d
+    <script src="data/PNOhotspots_total.json"></script>
     <style> 
         body {
             position: absolute;
             font-family: "Proxima Nova", "Montserrat", sans-serif;
-<<<<<<< HEAD
-            background-color: #636363;
-        }
-
-        button {
-            position: absolute;
-            margin-left: 6px;
-            margin-top: 6px;
-=======
 /*            background-color: #636363;*/
             background-color: #000000;
         }
@@ -43,15 +27,12 @@
         h2 {
             top: 30px;
             font-size: 1em;
->>>>>>> fb8d537c9bae7311b1c009b713a6fa0667a27b3d
         }
         .hotspot {
             stroke: #ffffff;
             fill: #ffb72d;
             opacity: .7;
         }
-<<<<<<< HEAD
-=======
         .hotspothover {
             fill: #ffe28a; 
         }
@@ -67,26 +48,21 @@
         }
 
 
->>>>>>> fb8d537c9bae7311b1c009b713a6fa0667a27b3d
     </style>
 </head>
 
 <body>
-<<<<<<< HEAD
+    <div id="sliderContainer">
+    <input id="timeslide" type="range" min="0" max="17" value="0" step="1"/><br>
+    <span id="range">6:00</span>
+    </div>
+
    <button id="start">Transition</button>
    <button id="reset" style="margin-left: 82px">Reset</button>
-   
-   <script>
-=======
-    <div id="sliderContainer">
-    <input id="timeslide" type="range" min="0" max="2" value="0" step="1"/><br>
-    <span id="range">9.0</span>
-    </div>
 
     <script>
     var inputValue = null;
-    var time = ["9.0","12.0","18.0"];
->>>>>>> fb8d537c9bae7311b1c009b713a6fa0667a27b3d
+    var time = ["6:00","7:00","8:00","9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00","24:00"];
 
     var width = 750;
     var height = 750;
@@ -105,12 +81,6 @@
         // .rotate( [71.057,0] )
         .center( [46.765, 24.713] )
         .translate( [width/2,height/2] );
-<<<<<<< HEAD
-     
-    var hotspots_total = svg.append( "g" );
-    hotspots_total.selectAll( "circle" )
-        .data(hotspots.features)
-=======
 
     var geoPath = d3.geo.path()
         .projection( projection );
@@ -129,59 +99,14 @@
         .attr("class", "roads");
 
 
- var hotspots_total = svg.append( "g" );
-
-    hotspots_total.selectAll( "circle" )
-        .data( hotspots.features )
->>>>>>> fb8d537c9bae7311b1c009b713a6fa0667a27b3d
+ var PNOhotspots_total = svg.append("g").selectAll("circle")
+        .data(hotspots.features)
         .enter()
         .append("circle")
         // .attr("display", initialTime)
         .attr( "stroke", "#ffe28a" )
         .attr("transform", function(d) {return "translate(" + projection([d.properties.long_dest,d.properties.lat_dest]) + ")";})
-<<<<<<< HEAD
-        .attr("class", "hotspot")
-        .attr("r", 5);
-        
-        d3.select("#start").on("click", function() {
-            hotspots_total
-                .transition()
-                .attr( "stroke", "#ffffff" )
-                .attr("r", 20);
-        });
-
-        d3.select("#reset").on("click",function() {
-            hotspots_total
-                .transition()
-                .attr('r', 5);
-        });
-
-    // Draw the Rectangle
-    // var rectangle = svg.append("rect")
-    //     .attr("x", 50)
-    //     .attr("y", 50)
-    //     .attr("width", 50)
-    //     .attr("height", 50);
-
-    // d3.select("#start").on("click", function() {
-    //     rectangle
-    //         .transition()
-    //         .attr("width", 100) // New Width
-    //         .attr("height", 100); // New Height
-    // });
-
-    // d3.select("#reset").on("click", function() {
-    //     rectangle
-    //         .transition()
-    //         .attr("width", 50)
-    //         .attr("height", 50);
-    // });
-    </script>
-<!-- 
-    <svg width="400" height="200" style="border: 1px solid black;">
-    <rect x="50" y="50" width="50" height="50"></rect></svg> -->
-=======
-        .attr("r", function(d){return d.properties.flow*2;})
+        .attr("r", 2)
         .attr("class", "hotspot")
         .on("mouseover", function(d){
             d3.select("h2").text(d.properties.flow);
@@ -191,6 +116,18 @@
             d3.select("h2").text("");
             d3.select(this).attr("class","hotspot");
         });
+
+    // d3.select("#start").on("click", function() {
+    //     PNOhotspots_total
+    //             .transition()
+    //             .attr("r", function(d){return d.properties.flow*3;});
+    //     });
+
+    // d3.select("#reset").on("click", function() {
+    //     PNOhotspots_total
+    //             .transition()
+    //             .attr("r", 1);
+    //     });
 
     // when the input range changes update the value 
     d3.select("#timeslide").on("input", function() {
@@ -212,6 +149,13 @@
                 return "display";
             } else {
                 return "none";
+        };
+        // d3.select(this)
+        //     hotspots_total
+        //         .transition()
+        //         .attr("r", function(d){return d.properties.flow*3;})
+        // }
+}
 
     //     function initialTime(d,i){
     //         var d = "9.0"
@@ -223,12 +167,9 @@
     //     };
     // }
 
-        };
-    }
     </script>
 
 
->>>>>>> fb8d537c9bae7311b1c009b713a6fa0667a27b3d
 
 </body>
 </html>
